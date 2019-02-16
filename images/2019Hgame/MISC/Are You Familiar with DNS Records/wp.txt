@@ -1,0 +1,1 @@
+复制链接地址;http://project-a11.club/,通过在线网站:https://tool.lu/dns/index.html查询txt，得到flag。
