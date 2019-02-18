@@ -17,6 +17,6 @@
   <entry>
     <title><![CDATA[Hello World]]></title>
     <url>%2F2019%2F02%2F16%2Fhello-world%2F</url>
-    <content type="text"><![CDATA[Welcome to Hexo! This is your very first post. Check documentation for more info. If you get any problems when using Hexo, you can find the answer in troubleshooting or you can ask me on GitHub. Quick StartCreate a new post$ hexo new "My New Post" More info: Writing Run server$ hexo server More info: Server Generate static files$ hexo generate More info: Generating Deploy to remote sites$ hexo deploy More info: Deployment]]></content>
+    <content type="text"><![CDATA[Welcome to Hexo! This is your very first post. Check documentation for more info. If you get any problems when using Hexo, you can find the answer in troubleshooting or you can ask me on GitHub. Quick StartCreate a new post$ hexo new "My New Post" More info: Writing Run server$ hexo server More info: Server Generate static files$ hexo generate More info: Generating Deploy to remote sites$ hexo deploy More info: Deployment这是一段测试文字 haha 一个普通标题 一个普通标题 一个普通标题 短文本 中等文本 稍微长一点的文本 稍微长一点的文本 短文本 中等文本 使用【星号】标识无序列表 使用【星号】标识无序列表 使用【星号】标识无序列表我是黑体字 这是一行引用 hello，引用结束没？]]></content>
   </entry>
 </search>
