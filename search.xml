@@ -1,9 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
+    <title><![CDATA[攻防世界小记]]></title>
+    <url>%2F2019%2F03%2F05%2F%E6%94%BB%E9%98%B2%E4%B8%96%E7%95%8C%2F</url>
+    <content type="text"><![CDATA[前言这里挑选了一些个人认为有价值的题目，当然，正在不断doing中，会不断更新的。Miscembarrass这道题是一道流量分析题，首先拿到流量包，发现有点大266MB(太大了，就不放出来了)，估计有点东西，于是首先导出文件，发现有很多杂七杂八的东西，但是看过一遍后貌似没有什么有用的东东(比如压缩包啊啥的)？？嗯？？这么坑的吗？于是想到这种题多半是直接给了flag在字符串里面的，靠N多数据包来混淆我们，让我们难以直接发现,只能瞎找数据包，于是拖到虚拟机，输入命令：strings misc_02.pcapng | grep flagEmmmm，果然不出所料：看一看我们得到的导出文件，毫无N用。。：Reverse-it这道题有点难度，而且极具迷惑性。首先我们拿到题目，是一个二进制文件先用010看一下，发现是二进制文件，既然“提示”我们要逆向它，那么我们就先用IDA分析一下，然而太菜了，什么都逆不出来。放到虚拟机运行一下试试看？报错！然而，Linux还是有用的，可能这里的逆向不是我们想象中的逆向，这里指的应该是把它反着输出一下？不管了，试试看！于是使用了一下命令：xxd -p Reverseit | tr -d '\n' | rev | xxd -r -p &gt; reversed这里解释一下这些是什么意思：‘|’：，a | b的意思是将a的输出作为b的输入；xxd -p filename表示把filename进行十六进制存储；tr -d ‘\n’表示删除换行符；rev表示把字符相反输出；xxd -r -p表示把十六进制转换成二进制；接着&gt; reversed表示将其存储为名称为reversed的文件。还没完，还要使用file命令确定一下reversed的类型：file reversed啊啊啊，看我们得到了什么！一张名为reversed图片！我们把图片内容反着输出就行了！未完待续！]]></content>
+      <categories>
+        <category>CTF训练</category>
+        <category>攻防世界</category>
+      </categories>
+      <tags>
+        <tag>CTF训练</tag>
+      </tags>
+  </entry>
+  <entry>
     <title><![CDATA[腾讯云使用宝塔面板部署Hexo]]></title>
     <url>%2F2019%2F02%2F22%2F%E8%85%BE%E8%AE%AF%E4%BA%91%E9%83%A8%E7%BD%B2Hexo%2F</url>
-    <content type="text"><![CDATA[前言在网上找了很多教程，但是基本没有使用宝塔Linux面板部署Hexo的，基本都是从命令行开始直接搞，但是这样并不直观，因此，我摸索出了使用宝塔面板部署Hexo的方法。使用宝塔面板部署，因为它已经帮我们安装好了nginx和git，不必我们自己手动安装。正式开始！配置Git！在这里，我购买完云服务器之后，就立马重装了宝塔Linux面板。为此，我们需要先重装一下系统。首先，进入云服务器控制台，选中一台实例，然后拉到最右边点击更多。如图所示：接着，按照如图所示选择宝塔面板版本，选择上海霹格这一款，貌似是腾讯云专门定制的，当然，选择其它的应该也行。最后，等待其安装完成，成功之后访问：ip:8888，配置好用户名与密码后即可进入你的宝塔面板。接着，我们在home文件夹下新建git，hexo这两个文件夹。随后，我们通过腾讯云或者xshell登录我们的实例，依次执行cd .. //这里是因为默认执行目录是root，需要返回根目录cd homecd gitgit init --bare hexoBlog.git接着，转到宝塔面板，进入/home/git/hexoBlog.git/hooks,然后新建一个文件：post-receive，不要后缀名。然后编辑它，加入如下两条代码：#!/bin/bashgit --work-tree=/home/hexoBlog --git-dir=/home/git/hexoBlog.git checkout -f保存即可，接着转到已经登录的实例控制台，即xshell或者腾讯云控制台执行如下代码：chmod +x /home/git/hexoBlog.git/hooks/post-receive至此，git基本已经配置完成！配置Nginx！宝塔面板默认的nginx配置文件在根目录-&gt;www-&gt;serve-&gt;nginx-&gt;conf下，找到nginx.conf，编辑它，如图：接下来，重启nginx服务：service nginx restart本地Hexo配置找到本地Hexo站点配置文件_config.yml，进行如下更改：deploy: type: git repository: tencent: root@你的云服务器ip:/home/git/hexoBlog大功告成！至此，只要在本地Hexo的git bash下执行：hexo cleanhexo g -d接着可能会提示你输入你的云服务器的密码，此处输入密码不会显示，复制粘贴完后直接回车即可，成功后访问你的域名或者ip就能看到你的Hexo博客了！]]></content>
+    <content type="text"><![CDATA[前言在网上找了很多教程，但是基本没有使用宝塔Linux面板部署Hexo的，基本都是从命令行开始直接搞，但是这样并不直观，因此，我摸索出了使用宝塔面板部署Hexo的方法。使用宝塔面板部署，因为它已经帮我们安装好了nginx和git，不必我们自己手动安装。正式开始！配置Git！在这里，我购买完云服务器之后，就立马重装了宝塔Linux面板。为此，我们需要先重装一下系统。首先，进入云服务器控制台，选中一台实例，然后拉到最右边点击更多。如图所示：接着，按照如图所示选择宝塔面板版本，选择上海霹格这一款，貌似是腾讯云专门定制的，当然，选择其它的应该也行。最后，等待其安装完成，成功之后访问：ip:8888，配置好用户名与密码后即可进入你的宝塔面板。然后按照提示安装所需的nginx，等待安装完成即可。接着，我们在home文件夹下新建git，hexo这两个文件夹。随后，我们通过腾讯云或者xshell登录我们的实例，依次执行cd .. //这里是因为默认执行目录是root，需要返回根目录cd homecd gitgit init --bare hexoBlog.git接着，转到宝塔面板，进入/home/git/hexoBlog.git/hooks,然后新建一个文件：post-receive，不要后缀名。然后编辑它，加入如下两条代码：#!/bin/bashgit --work-tree=/home/hexoBlog --git-dir=/home/git/hexoBlog.git checkout -f保存即可，接着转到已经登录的实例控制台，即xshell或者腾讯云控制台执行如下代码：chmod +x /home/git/hexoBlog.git/hooks/post-receive至此，git基本已经配置完成！配置Nginx！宝塔面板默认的nginx配置文件在根目录-&gt;www-&gt;serve-&gt;nginx-&gt;conf下，找到nginx.conf，编辑它，如图：接下来，重启nginx服务：service nginx restart本地Hexo配置找到本地Hexo站点配置文件_config.yml，进行如下更改：deploy: type: git repository: tencent: root@你的云服务器ip:/home/git/hexoBlog大功告成！至此，只要在本地Hexo的git bash下执行：hexo cleanhexo g -d接着可能会提示你输入你的云服务器的密码，此处输入密码不会显示，复制粘贴完后直接回车即可，成功后访问你的域名或者ip就能看到你的Hexo博客了！]]></content>
       <categories>
         <category>杂记</category>
         <category>腾讯云</category>
