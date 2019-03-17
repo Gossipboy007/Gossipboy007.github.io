@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
-    <title><![CDATA[shell]]></title>
+    <title><![CDATA[Shell算法：转置文件]]></title>
     <url>%2F2019%2F03%2F17%2F%E8%BD%AC%E7%BD%AE%E6%96%87%E4%BB%B6%2F</url>
     <content type="text"><![CDATA[描述力扣上看到这么一道题，假设 file.txt 文件内容如下：name agealice 21ryan 30应当输出：name alice ryanage 21 30嗯。。。怎么搞呢？？这就需要我们对Linux的一些命令有些了解了。这里我们使用awk命令。前置知识awk是啥？awk是一种优良的文本处理工具，它不仅是Linux中也是任何环境中现有的功能最强大的数据处理引擎之一。先来了解一下解决这个问题需要用到的awk里的指令：NF：这个表示的是字段总数；NR：这个表示的是所读文件的当前行数；$0：表示当前行的所有内容，比如print $0可以打印整行内容；$i：表示第i个字段；BEGIN,END：这两个个标识程序开始和结束。开始写！awk的shell格式是awk ‘{XXXX}’ filename，所以我们可以使用这样的命令:awk '&#123; for(i=1;i&lt;=NF;i++)&#123; if(NR==1)&#123; file[i]=$i #这里如果打印file[i],会发现是两行，第一行是name，第二行是age。和其它语言的数组打印格式不同 &#125;else&#123; file[i]=file[i] " " $i #因为输出要求有空格 &#125; &#125;&#125;END&#123; for(i=1;i&lt;=NF;i++)&#123; print file[i] &#125;&#125;' file.txt这里为了好看一些，排了个版，当然我们需要在终端直接输入一整行指令，存成文件也可以，不过估计得改一下文件路径：awk '&#123;for(i=1;i&lt;=NF;i++)&#123;if(NR==1)&#123;file[i]=$i&#125;else&#123;file[i]=file[i]" "$i&#125;&#125;&#125;END&#123;for(i=1;i&lt;=NF;i++) print file[i]&#125;' file.txt为什么这样写？现在来解释一下。我们知道file.txt有三行，每行两个字段，所以NF=2；如果文件只有一行，即NR=1的话，直接构造一个数组把字段存进去即可得到转置后的文件（注释里有，自己也可以试着打印一下）。得到NR=1是的file数组输出：nameage接着开始读取下一行，又重新开始循环，i=1，此时NR=2，所以执行else里面的代码，此时会在原有file数组里增加file.txt第二行的字段(file[i]=file[i] “ “ $i)，第一次循环：name aliceage 21至此，第二次循环后执行END结束里的指令，得到我们想要的输出。值得注意的是每次读完一行，都会这一行的开始读取字段,重新循环是一个点。]]></content>
       <categories>
