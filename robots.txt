@@ -6,5 +6,5 @@ Allow: /categories/
 Allow: /tags/
 
 
-Sitemap: http://leaflove.cn/sitemap.xml
-Sitemap: http://leaflove.cn/baidusitemap.xml
+Sitemap: http://leaflag.cn/sitemap.xml
+Sitemap: http://leaflag.cn/baidusitemap.xml
