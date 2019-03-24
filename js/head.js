@@ -1,3 +1,3 @@
-// build time:Sun Mar 17 2019 15:52:53 GMT+0800 (GMT+08:00)
+// build time:Sun Mar 24 2019 19:53:09 GMT+0800 (GMT+08:00)
 $(function(){$(".toggle-menu").on("click",function(){if(!$(".menus").is(":visible")){$(".menus").velocity("stop").velocity("transition.slideDownIn",{duration:300})}else{$(".menus").velocity("stop").velocity("transition.slideUpOut",{duration:300})}});$(document).on("click",function(i){var n=$(".menus")[0].contains(i.target)||$(".toggle-menu")[0].contains(i.target);if(!n&&$(".toggle-menu").is(":visible")){$(".menus").velocity("stop").velocity("transition.slideUpOut",{duration:300})}});$(window).on("resize",function(i){if(!$(".toggle-menu").is(":visible")){if(!$(".menus").is(":visible")){$(".menus").velocity("stop").velocity("transition.slideDownIn",{duration:300})}}})});
 //rebuild by neat 
