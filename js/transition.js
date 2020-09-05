@@ -1,3 +1,3 @@
-// build time:Thu Nov 07 2019 18:39:30 GMT+0800 (GMT+08:00)
+// build time:Sat Sep 05 2020 09:43:42 GMT+0800 (GMT+08:00)
 $(function(){$(".layout").velocity("stop").velocity("transition.slideUpIn",{delay:500,duration:1e3,easing:"easeInOutQuart",complete:function(){if($(".sidebar-toc").length>0){setTimeout(function(){$("#toggle-sidebar").click()},200)}}});$("#top-container").velocity("stop").velocity("transition.fadeIn",{delay:500,duration:1e3,easing:"easeInOutQuart"})});
 //rebuild by neat 
