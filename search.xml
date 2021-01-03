@@ -13,6 +13,18 @@
       </tags>
   </entry>
   <entry>
+    <title><![CDATA[PowerPC学习笔记]]></title>
+    <url>%2F2020%2F08%2F27%2FPowerPC%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0%2F</url>
+    <content type="text"><![CDATA[前言个人正在学习PowerPC逆向，这里记录一下自己遇到的一些难点汇编代码。三目运算符遇到以下汇编代码，直接使用三目运算符。参考： ARM/MIPS/PowerPC/RISC-V 指令集快速入门 | FANG - 🍉 (moooc.cc)汇编指令对应C代码subfic rA, rB, 0adde rC, rA, rBrC = (rB ? 0 : 1)addic rA, rB, -1subfe rC, rA, rBrC = (rB ? 1 : 0)addic rA, rB, -1subfe rC, rA, rArC = (rB ? 0 : -1)extsb rA, rA&lt;br/&gt;srawi rB, rA, 0x1Fxor rC, rB, rAsubf rC, rC, rBsrawi rC, rC, 0x1FrC = (rA ? -1 : 0)extsb rA, rAxor rC, rA, rSsrawi rB, rC, 0x1Fxor rC, rB, rCsubf rC, rC, rBsrawi rC, rC, 0x1FrC = (rA == rS) ? 0 : -1整形浮点转换这里指的是int和double的转换。我们先使用C语言来实现两个int转换为double（也研究了一小会才整出来）：//两个int合成double应该是这样的：//hex2double的第二个数int a = 0;//hex2double的第一个数*(&amp;a+1) = 0x3ff00000; double final = *(double*)&amp;a;从double取两个int是这样：//hex2double的第一个数int a = *(int*)(&amp;final+1);//第二个数int b = *(int*)(&amp;final);这样，我们就实现了两个int⇔double。在PowerPC中，我们只需要注意若是int转double，汇编代码若操作了较大的数，那么就是注释中的第一个数(即*(&amp;a+1))，操作了较小的数，就是注释中的第二个数(即a)。反之是double转int，则相反。然后直接根据上面的C代码更改对应的数字即可。其它重要汇编语句其实有些IDA里反应的语句实际翻译起来无需实际代码，只是内部逻辑需要，但这部分往往难以理解。clrlwi关于 clrlwi 常见的语句：clrlwi r0, r9, 24#等同于rlwinm r0,r9,0,24,31，按照rlwinm指令的意义，其执行结果实际上为：r0 = r9 &amp; MASK(24,31) = r9 &amp; 1111 1111b = r9 &amp; 0xFF所以上面的语句其实就是r9的值传入r0 。至于为什么要使用这条语句来传值，就是适应高位清零之类的需求。clrlwi r0, r9, 16#此时等同于：r0 = r9 &amp; MASK(16,31) = r9 &amp; 0xFFFF是一个short。extshextsh r9, r11即将r11中的一个半字扩展成一个单字（WORD），放入r9寄存器中。 一般涉及这条指令的变量，为有符号的。]]></content>
+      <categories>
+        <category>杂记</category>
+        <category>逆向</category>
+      </categories>
+      <tags>
+        <tag>杂谈</tag>
+      </tags>
+  </entry>
+  <entry>
     <title><![CDATA[2020, 不要让我失望]]></title>
     <url>%2F2020%2F02%2F08%2F2020%2C%E4%B8%8D%E8%A6%81%E8%AE%A9%E6%88%91%E5%A4%B1%E6%9C%9B%2F</url>
     <content type="text"><![CDATA[前言2020年，我从未想过会是这样的一种开局。原本制定好的计划，因为突如其来的疫情，完全被打乱。不只是我，整个社会甚至整个国家的计划，都被打乱了。1月初，还在备考中的我，并没有太多关注新闻，偶尔听说武汉肺炎的消息，并未引起我的注意，当时只是觉得是一个小病，应该不足为奇。可是事与愿违，接下来的发展，朝着我们不愿的方向前去。一月2019年12月31日23：59：59秒之后，2020年来到。起初的我们可能还沉浸在新年到来的喜悦，可是接下来的几天，系列重磅新闻接踵而至，把我们从喜悦中炸醒，认识到现实的残酷。先是美国炸死伊朗将军，让我们震惊，纷纷感叹美国的强霸以及讨论三战的可能性。接着就是武汉不明肺炎，没有引起我们重视。不知道是不是我没有经历过非典时期的经验，配合着当时新闻媒体的宣传，起初我对这件事是非常无感的。在学校逗留了几天，偶尔也和一些在学校的工作者聊了几次这个肺炎，但是我们都没有太过于重视，只关心当地有多少感染者，甚至买口罩的想法在我头脑中也仅仅是一闪而过。现在回想起来，我对于这种卫生事件实在是过于迟钝，缺乏必要的经验。这最终给我带来了一些经济损失以及没有口罩的窘境。直到在回家路上，看到不少人戴着口罩，我才意识到或许这次疫情可能真的“来了”。爆发回到家的第二天，就是除夕。此时各大网站陆陆续续地开发出了疫情数据网站，当时看着上面只有几百人的数据，我内心还是极为高兴的。可是接下来的几天直到现在，仍处于疫情的爆发期，每日确诊数还在不断激增，随之变严峻的还有各地的局势，我的心情也愈加沉重。随时间推移，不少城市宣布“封城”。看着“空城”般的城市，我的内心五味杂陈。今天，我所在的地区也开始封闭管理了。我不知道别人是怎么想的，我愤怒于那些吃野味的人，很可能是他们让全国人民遭受苦难，可是为了抑制疫情的发展，我们除此之外还能做什么呢？资本主义亡我之心不死这次中国的疫情，让西方和分裂者乐开了花。每日外网传播的谣言无数，不玩微博的我发现微博也是一片乌烟瘴气。每当看到那种内容我都不由得很惊叹于他们的丰富想象力以及那近乎垃圾一般的逻辑，同时也对那些发布这些内容的人感到很痛心。当然我们必须承认这次处理疫情过程中的确有做得不好的地方(武汉红十)，不过凭借我们强有力的政策和措施，是一定能够渡过这次难关的，只不过这一切都需要让时间前行，一切困难在中华儿女面前都不是困难！最后在家待了十五天，恰好渡过了新冠潜伏期。第一次体验到超长假期的感觉，可是这样的假期我不想再有一个，这样的假期，不仅十分无聊，还十分危险，处处充满着限制。这次疫情影响真的很大，每个人都被影响到了，但是为了国家，我们个人的小利益算什么。最后，希望疫情能够早早结束，让我们重回正轨！让我们用实际行动去缔造一个有苦有甜，不让人失望的2020！]]></content>
@@ -31,6 +43,18 @@
       <categories>
         <category>杂记</category>
         <category>观影</category>
+      </categories>
+      <tags>
+        <tag>杂谈</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title><![CDATA[DNS隧道相关命令总结]]></title>
+    <url>%2F2019%2F10%2F27%2FDNS%E9%9A%A7%E9%81%93%E5%91%BD%E4%BB%A4%2F</url>
+    <content type="text"><![CDATA[前言最近在研究DNS隧道软件，因为玩的比较多，命令多了容易搞混，而且还比较长，于是干脆把它们记录下来，方便查找。当然，使用前首先需要关掉服务器的53端口：service systemd-resolved stopDns2tcpwindows: dns2tcpc -r ssh -z dns2tcp.leaflove.cn 47.97.197.242 -l 7700 -c -d 3linux: dns2tcpd -f /etc/dns2tcpd.conf -F -d 2之后ssh登录127.0.0.1:7700, 浏览器再设置代理。Iodineserver：iodined -f -DD -P 123 -4 192.168.0.1 dns.leaflove.cnclient：iodine -f -r -T TXT -P 123 47.97.197.242 dns.leaflove.cn接着连接ssh:ssh -D 127.0.0.1:7890 root@192.168.0.1最后设置socks5代理：export http_proxy="socks5://127.0.0.1:7890"再使用http相关网络请求即可传输数据。DnsCat2client:./dnscat --dns server=47.97.197.242server:ruby ./dnscat2.rbtcpdump(client):tcpdump -i eth1 udp -w /dns/dnscat.pcaptcpdump -i eth1 udp -s0 -C 5 -Z root -w /dns/eth0.pcap这个工具可以直接获取shell，可以说十分好用。]]></content>
+      <categories>
+        <category>杂记</category>
+        <category>DNS隧道</category>
       </categories>
       <tags>
         <tag>杂谈</tag>
