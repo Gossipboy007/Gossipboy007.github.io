@@ -1,6 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
+    <title><![CDATA[部署hexo遇到的问题]]></title>
+    <url>%2F2021%2F02%2F22%2F%E9%83%A8%E7%BD%B2hexo%E9%81%87%E5%88%B0%E7%9A%84%E9%97%AE%E9%A2%98%2F</url>
+    <content type="text"><![CDATA[前言最近发现我在19年发布的关于部署hexo的文章还是挺多人看的，在这里记录一下读者遇到的一些问题和解决方法。解决方法一：手动输入有读者遇到如下问题，乍一看似乎是文件未找到，实际情况却是文件存在，只是文件存在未知符号。我们可以手动输入post-receive的内容，这位读者就是如此解决的。未知的答案这个问题由于读者没有回复是否解决，因此我也不知道解决办法。其余问题由于时间原因，我忘记了。这里贴出参考了我的文章，经读者优化后的部署步骤：https://blog.csdn.net/qq_34272417/article/details/106914041]]></content>
+      <categories>
+        <category>杂记</category>
+        <category>腾讯云</category>
+      </categories>
+      <tags>
+        <tag>杂谈</tag>
+      </tags>
+  </entry>
+  <entry>
     <title><![CDATA[2020DDCTFMisc]]></title>
     <url>%2F2020%2F09%2F04%2F2020DDCTFMisc%2F</url>
     <content type="text"><![CDATA[前言这次的DDCTF也没什么时间搞，也就搞了一道Misc最简单的的拼图题，剩下的真就溜了。不过这次居然被我拿到了先锋？签到听说第一个拿到分数的人有奖？那我自然准时蹲点签到啊！先拿到已经发现的签到flag！不出意外，11点网站准时崩，不过还好，刷了几下就好了，于是迅速找到签到，直接提交，居然真被我抢到了一血？这真是意外之喜。一起拼图吗这道题拿到压缩包，解压发现有6400张小图片，还给了一张demo.png(下图经过压缩)，看来应该是拼图了。于是先把6400张图片给拼到一起，一张小图片是51*27。demo.png是4096*2160，刚好是小图片宽高的大约80倍，所以不难推测出整个拼后的图片行列应该是80行。用如下代码可以将小图片拼接：import PIL.Image as Imageimport osIMAGES_PATH = r'E://desktop/file_d0wnl0ad/'IMAGE_SIZE = (51, 27) # 每张小图片的大小IMAGE_ROW = 80 # 大图行数IMAGE_COLUMN = 80 # 大图列数IMAGE_SAVE_PATH = 'final.jpg' # 图片转换后的地址image_names = os.listdir(IMAGES_PATH) # 获取图片集地址下的所有图片名称image_names.sort() # 排序，但是这里没用处# 简单的对于参数的设定和实际图片集的大小进行数量判断if len(image_names) != IMAGE_ROW * IMAGE_COLUMN: raise ValueError("合成图片的参数和要求的数量不能匹配！")# 定义图像拼接函数def image_compose(): to_image = Image.new('RGB', (IMAGE_COLUMN * IMAGE_SIZE[0], IMAGE_ROW * IMAGE_SIZE[1])) #创建一个新图 # 循环遍历，把每张图片按顺序粘贴到对应位置上 for y in range(1, IMAGE_ROW + 1): for x in range(1, IMAGE_COLUMN + 1): from_image = Image.open(IMAGES_PATH + image_names[IMAGE_COLUMN * (y - 1) + x - 1]).resize( (IMAGE_SIZE[0], IMAGE_SIZE[1]),Image.ANTIALIAS) to_image.paste(from_image, ((x - 1) * IMAGE_SIZE[0], (y - 1) * IMAGE_SIZE[1])) return to_image.save(IMAGE_SAVE_PATH) # 保存新图image_compose() #调用函数最后得到的结果(未压缩)十分迷惑,根本无法看出。。。可能是小图片顺序问题：最后只能手动找到里面存在flag的图块，进行手动拼接。最后得到flag：也就是DDCTF{484e61cd1483c34db71a721bc8a829c8}]]></content>
